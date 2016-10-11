@@ -1,0 +1,4 @@
+KMeans implementation.
+
+Data directory contains:
+* full.csv - full dataset including all cover types
