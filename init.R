@@ -128,7 +128,31 @@ write.csv(forest.tx.train, file="Desktop/MRes/COMP777/Project/forestdata/raw/tra
 forest.regr.train <- forest.tx.train
 forest.regr.train$Wilderness_Area <- NULL
 forest.regr.train$Soil_Type <- NULL
+forest.regr.train$Highwater <- NULL
 
 # Write this out as the new regression data
 write.csv(forest.regr.train, file="Desktop/MRes/COMP777/Project/forestdata/raw/tx_regression.csv",
+          row.names=TRUE)
+
+# Now let's do some pca analysis on this data
+# Let's try PCA to reduce the set of predictors
+
+forest.pca.prep <- forest.regr.train
+forest.pca.prep$Cover_Type <- NULL
+
+forest.pca <- prcomp(forest.pca.prep, scale=FALSE)
+forest.pca.var <- forest.pca$sdev^2
+forest.pca.pve <- forest.pca.var / sum(forest.pca.var)  # % variance explained
+
+plot(forest.pca.pve, xlab="Principal Component", ylab="Proportion of Variance Explained ")
+plot(cumsum(forest.pca.pve), xlab="Principal Component", ylab="Cumulative Proportion of Variance Explained ",
+     ylim=c(0,1) ,type='b')
+
+# There is an elbow after 7 components, so we choose the first 7 components as features.
+best.pca <- forest.pca$x[,c(1:7)]
+best.pca <- as.data.frame(best.pca)
+best.pca$Cover_Type <- forest.regr.train$Cover_Type
+
+# Print out the pca as csv now.
+write.csv(best.pca, file="Desktop/MRes/COMP777/Project/forestdata/raw/pca.csv",
           row.names=TRUE)
